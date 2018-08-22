@@ -56,7 +56,7 @@ image:add_tag.png[add tag]
 image:config_sg.png[config sg]
 
 인스턴스가 생성되면, 다음과 같이 ec2 대시보드에서 정보를 확인 가능합니다. 아래 화면에서 우측 하단에 있는 Public DNS 항목에 마우스 커서를 가져가면, url 을 클립보드에 복사 하기가 가능합니다. 해당 주소를 클리보드에 복사한 후 브라우저에서 접속을 시도합니다.
-image:instance_info[instance info]
+image:instance_info.png[instance info]
 
 접속이 성공하게 되면 다음의 화면을 보시게 됩니다.
 image:pgweb.png[pgweb first page]
