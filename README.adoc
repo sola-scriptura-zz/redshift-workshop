@@ -2,12 +2,12 @@
 :toc:
 :imagesdir: ./images
 
-Amazon Redshift and Spectrum
-===================================
+Amazon Redshift and Spectrem
+--------------------------------
 Amazon Redshift Spectrum을 사용하면 데이터를 Amazon Redshift 테이블로 로드할 필요 없이 Amazon S3에 있는 파일의 정형 및 반정형 데이터를 효율적으로 쿼리하고 검색할 수 있습니다. Redshift Spectrum 쿼리는 대규모 병렬 처리를 사용하여 대규모 데이터 세트를 매우 빠르게 실행합니다. 처리 대부분이 Redshift Spectrum 계층에서 발생하며, 데이터 대부분이 Amazon S3에 유지됩니다. 여러 개의 클러스터가 클러스터별로 데이터 복사본을 만들지 않고도 Amazon S3에 있는 같은 데이터 세트를 동시에 쿼리할 수 있습니다.
 
 이 자습서에서는 Amazon Redshift Spectrum을 사용하여 Amazon S3에 있는 파일에서 바로 데이터를 쿼리하고 Amazon Redshift 클러스터에 저장된 데이터에 이를 조인하는 방법을 배웁니다.
-===================================
+--------------------------------
 
 **목표**
 
@@ -47,7 +47,10 @@ image:select_instance_type.png[select instance type]
     wget https://github.com/sosedoff/pgweb/releases/download/v0.9.12/pgweb_linux_amd64.zip
     unzip pgweb_linux_amd64.zip
     mv pgweb_linux_amd64 pgweb
-    ./pgweb --bind=0.0.0.0 > stdout.txt 2> stderr.txt
+    echo "/pgweb --bind=0.0.0.0 > stdout.txt 2> stderr.txt" > pgweb.sh
+    echo "source /pgweb.sh" >> /etc/rc.local
+    chmod +x /pgweb.sh
+    source /pgweb.sh
 
 테그를 추가하여 다른 인스턴스와 구분이 가능하도록 Name 으로 pgweb 을 설정합니다.
 image:add_tag.png[add tag]
@@ -63,8 +66,7 @@ image:pgweb.png[pgweb first page]
 
 == 과제 2: Amazon Redshift 생성
 
-실습을 위하여 Redshift 클러스터를 생성합니다.
-
+실습을 위하여 Redshift 클러스터를 생성합니다. 클러스터는 셈플 데이터가 있는 us-west-2 와 동일한 리전에 생성해야 합니다. 또한 Redshift 의 접속을 의하여 보안 그룹 설정을 주의하여 생성 하시기 바랍니다. 
 
 == 과제 3: Amazon Redshift에 연결
 
@@ -127,7 +129,7 @@ _Schema "spectrum" already exists_라는 메시지를 수신하면, 다음 단�
     ROW FORMAT DELIMITED
     FIELDS TERMINATED BY '\t'
     STORED AS TEXTFILE
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales/'
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales/'
     TABLE PROPERTIES ('numRows'='172000')
     
 
@@ -191,7 +193,7 @@ _event_ 테이블이 페이지 왼쪽의 테이블 목록에 표시됩니다.
 10. **INSERT\-YOUR\-REDSHIFT\-ROLE**을 앞선 과제에서 생성한 **RedshiftRole** 의 ARN 값으로 대체하고 _pgweb_에서 이 명령을 실행하여 데이터를 _events_ 테이블로 로드합니다.
 
     COPY event
-    FROM 's3://awssampledbuswest2/tickit/allevents_pipe.txt'
+    FROM 's3://yjeong-sampledata-uswest2/tickit/allevents_pipe.txt'
     IAM_ROLE 'INSERT-YOUR-REDSHIFT-ROLE'
     DELIMITER '|'
     TIMEFORMAT 'YYYY-MM-DD HH:MI:SS'
@@ -246,7 +248,7 @@ _event_ 테이블이 페이지 왼쪽의 테이블 목록에 표시됩니다.
 
 다음은 분할된 데이터를 보여주는 디렉터리 목록으로, 디렉터리에 월별로 파티션된 S3 파일 집합을 표시합니다.
 
-    $ aws s3 ls s3://awssampledbuswest2/tickit/spectrum/sales_partition/
+    $ aws s3 ls s3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/
     
     PRE saledate=2008-01/
     PRE saledate=2008-02/
@@ -282,7 +284,7 @@ _event_ 테이블이 페이지 왼쪽의 테이블 목록에 표시됩니다.
     ROW FORMAT DELIMITED
     FIELDS TERMINATED BY '|'
     STORED AS TEXTFILE
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/'
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/'
     TABLE PROPERTIES ('numRows'='172000')
     
 
@@ -296,40 +298,40 @@ _saledate_ 필드에 따라 테이블이 파티션됨을 Redshift Spectrum에 �
 
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-01-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-01/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-01/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-02-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-02/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-02/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-03-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-03/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-03/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-04-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-04/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-04/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-05-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-05/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-05/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-06-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-06/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-06/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-07-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-07/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-07/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-08-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-08/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-08/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-09-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-09/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-09/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-10-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-10/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-10/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-11-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-11/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-11/';
     ALTER TABLE spectrum.sales_partitioned
     ADD PARTITION (saledate='2008-12-01')
-    LOCATION 's3://awssampledbuswest2/tickit/spectrum/sales_partition/saledate=2008-12/';
+    LOCATION 's3://yjeong-sampledata-uswest2/tickit/spectrum/sales_partition/saledate=2008-12/';
     
 
 이제 특정 _saledate_를 사용하는 모든 쿼리에서 해당 날짜와 관련된 디렉터리만 스캔합니다.
