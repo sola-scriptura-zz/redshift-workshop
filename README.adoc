@@ -366,18 +366,18 @@ _saledate_ 필드에 따라 테이블이 파티션됨을 Redshift Spectrum에 �
 
 두 번째 쿼리가 더 빠르게 실행됩니다. Amazon S3에서 읽는 데이터가 더 적기 때문입니다. 데이터 볼륨이 더 큰 경우에 그 차이가 더 분명해집니다. 또한, Amazon S3에서 읽는 데이터 양에 따라 Redshift Spectrum에 대한 요금이 부과되므로, 쿼리 실행 비용도 줄어듭니다.
 
-파티션에 대한 정보는 _SVV\_EXTERNAL\_PARTITIONS_ 시스템 뷰에서 확인할 수 있습니다.
+파티션에 대한 정보는 _SVV_EXTERNAL_PARTITIONS_ 시스템 뷰에서 확인할 수 있습니다.
 
-18.  이 명령을 실행하여 _sales\_partitioned_ 테이블에 대한 파티션을 봅니다.
+18.  이 명령을 실행하여 _sales_partitioned_ 테이블에 대한 파티션을 봅니다.
 
     SELECT *
     FROM SVV_EXTERNAL_PARTITIONS
     WHERE tablename = 'sales_partitioned'
     
 
-19.  _exernal tables_에 대한 정보는 _SVV\_EXTERNAL\_COLUMNS_ 시스템 뷰에서 확인할 수 있습니다.
+19.  _exernal tables_에 대한 정보는 _SVV_EXTERNAL_COLUMNS_ 시스템 뷰에서 확인할 수 있습니다.
     
-20.  이 명령을 실행하여 _sales\_partitioned_ 테이블에 정의된 열을 봅니다.
+20.  이 명령을 실행하여 _sales_partitioned_ 테이블에 정의된 열을 봅니다.
     
 
     SELECT *
