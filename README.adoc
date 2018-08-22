@@ -49,6 +49,7 @@ image:select_instance_type.png[select instance type]
     mv pgweb_linux_amd64 pgweb
     echo "/pgweb --bind=0.0.0.0 > stdout.txt 2> stderr.txt" > pgweb.sh
     echo "source /pgweb.sh" >> /etc/rc.local
+    chmod +x /etc/rc.local
     chmod +x /pgweb.sh
     source /pgweb.sh
 
